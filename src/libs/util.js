@@ -98,8 +98,11 @@ export const showTitle = (item, vm) => {
   if (!title) return
   if (useI18n) {
     if (title.includes('{{') && title.includes('}}') && useI18n) title = title.replace(/({{[\s\S]+?}})/, (m, str) => str.replace(/{{([\s\S]*)}}/, (m, _) => vm.$t(_.trim())))
-    else if (__titleIsFunction__) title = item.meta.title
-    else title = vm.$t(item.name)
+    else if (__titleIsFunction__) {
+      title = item.meta.title
+    } else {
+      title = vm.$t(item.name)
+    }
   } else title = (item.meta && item.meta.title) || item.name
   return title
 }
@@ -396,4 +399,155 @@ export const setTitle = (routeItem, vm) => {
   const pageTitle = showTitle(handledRoute, vm)
   const resTitle = pageTitle ? `${title} - ${pageTitle}` : title
   window.document.title = resTitle
+}
+
+export const sortObj = (arr, property) => {
+  return arr.sort((m, n) => m[property] - n[property])
+}
+// this.menuData = this.menuData -> children -> ... -> selectNode
+// 1. parent 2. selectNdoe -> new menuData
+export const insertNode = (parent, select, data) => {
+  // 1. 遍历parent -> select push
+  // 2. children -> push child
+  // 3. return parent
+  for (let i = 0; i < parent.length; i++) {
+    const item = parent[i]
+    // 去重
+    if (item.nodeKey === select.nodeKey) {
+      // 排序
+      parent.push(data)
+      parent = sortObj(parent, 'sort')
+      return parent
+    } else {
+      if (item.children && item.children.length > 0) {
+        insertNode(item.children, select, data)
+      }
+    }
+  }
+  return parent
+}
+
+export const deleteKey = (node, property) => {
+  if (node.children && node.children.length > 0) {
+    node.children.forEach((item) => {
+      delete item[property]
+      if (item.children && item.children.length > 0) {
+        deleteKey(item.children, property)
+      }
+    })
+  }
+  return node
+}
+
+// 获取节点的父级节点（一级节点）
+export const getNode = (arr, node) => {
+  for (let i = 0; i < arr.length; i++) {
+    const currentNode = arr[i]
+    // 当前的循环中是否有该节点
+    if (currentNode.nodeKey === node.nodeKey) {
+      if (!currentNode.parent) {
+        // 删除子节点上的parent属性
+        deleteKey(currentNode, 'parent')
+        return currentNode
+      } else {
+        return true
+      }
+    } else {
+      // 判断子节点中是否有该节点？
+      if (currentNode.children && currentNode.children.length > 0) {
+        currentNode.children.map((o) => {
+          o.parent = currentNode
+        })
+        // 当前循环中是否有该节点
+        if (getNode(currentNode.children, node)) {
+          // 删除子节点上的parent属性
+          deleteKey(currentNode, 'parent')
+          return currentNode
+        }
+      }
+    }
+  }
+}
+
+export const deleteNode = (tree, node) => {
+  for (let i = 0; i < tree.length; i++) {
+    const currentNode = tree[i]
+    if (currentNode.nodeKey === node.nodeKey) {
+      tree.splice(i, 1)
+      return tree
+    } else {
+      if (currentNode.children && currentNode.children.length > 0) {
+        deleteNode(currentNode.children, node)
+      }
+    }
+  }
+  return tree
+}
+
+export const updateNode = (tree, node) => {
+  for (let i = 0; i < tree.length; i++) {
+    const currentNode = tree[i]
+    if (currentNode.nodeKey === node.nodeKey) {
+      tree.splice(i, 1, node)
+      return tree
+    } else {
+      if (currentNode.children && currentNode.children.length > 0) {
+        updateNode(currentNode.children, node)
+      }
+    }
+  }
+  return tree
+}
+
+export const modifyNode = (tree, nodes, property, flag) => {
+  for (let i = 0; i < tree.length; i++) {
+    // 遍历整个树
+    const currentNode = tree[i]
+    if (nodes && nodes.length > 0) {
+      // 传递了需要设置的节点 （权限）
+      if (nodes.includes(currentNode._id)) {
+        const tmp = { ...currentNode }
+        tmp[property] = flag
+        tree.splice(i, 1, tmp)
+      }
+    } else {
+      // 无节点，无需要特别设置的节点权限，统一去设置整个树型菜单
+      const tmp = { ...currentNode }
+      tmp[property] = flag
+      tree.splice(i, 1, tmp)
+    }
+    if (currentNode.children && currentNode.children.length > 0) {
+      modifyNode(currentNode.children, nodes, property, flag)
+    }
+    // _checked 或者 _selected
+    if (currentNode.operations && currentNode.operations.length > 0) {
+      modifyNode(currentNode.operations, nodes, '_' + property, flag)
+    }
+  }
+  return tree
+}
+
+export const flatten = (arr) => {
+  while (arr.some((item) => Array.isArray(item))) {
+    arr = [].concat(...arr)
+  }
+  return arr
+}
+
+export const getPropertyIds = (menu, properties) => {
+  const arr = []
+  // 遍历整个树形菜单
+  menu.forEach((item) => {
+    if (item.checked || item._checked) {
+      arr.push(item._id)
+    }
+    // 查询两个属性下面的节点信息，children -> childrem -> children
+    properties.forEach((property) => {
+      if (item[property] && item[property].length > 0) {
+        arr.push(getPropertyIds(item[property], properties))
+      }
+    })
+  })
+
+  return flatten(arr)
 }

@@ -42,5 +42,15 @@ export default {
   tree_table_page: '树状表格',
   org_tree_page: '组织结构树',
   drag_drawer_page: '可拖动抽屉',
-  tree_select_page: '树状下拉选择器'
+  tree_select_page: '树状下拉选择器',
+  article_management: '文章管理',
+  content_management: '内容管理',
+  tags_management: '标签管理',
+  user_management: '用户管理',
+  menu_management: '菜单管理',
+  roles_management: '角色权限',
+  menu: '系统菜单配置',
+  roles: '权限管理',
+  'Menu Options': '菜单选项',
+  resources: '资源选项'
 }
