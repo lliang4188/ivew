@@ -48,9 +48,13 @@ export default {
   tags_management: '标签管理',
   user_management: '用户管理',
   menu_management: '菜单管理',
+  comments_management: '内容安全',
   roles_management: '角色权限',
   menu: '系统菜单配置',
   roles: '权限管理',
   'Menu Options': '菜单选项',
-  resources: '资源选项'
+  resources: '资源选项',
+  comments_list: '评论管理',
+  logs_check: '错误收集',
+  system: '系统管理'
 }

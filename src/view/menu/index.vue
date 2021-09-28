@@ -174,13 +174,9 @@ export default {
       if (this.tableData.length > 0) {
         data.operations = this.tableData
       }
-
-      // 校验通过
-      // 1.获取 formData中的数据 -> menuData 中
-      //   a. type -> 对应的数据节点
-      //   b. 数据需要按照tree的数据进行格式化 -> title
-
-      // 2。提交对应的数据到后台接口
+      // 1. 获取 formData中的数据 -> menuData中
+      //   a. type -> 数据插入的节点
+      //   b. 数据需要按照tree的数据格式进行格式化 -> title
       if (this.type === 'bro') {
         // 兄弟节点
         if (this.menuData.length === 0) {
@@ -188,15 +184,12 @@ export default {
             if (res.code === 200) {
               this.menuData.push(res.data)
               this.$Message.success('添加菜单成功！')
-              // 清空formData中的数据
               this.initForm()
             }
           })
         } else {
           const selectNode = this.selectNode[0]
-          // console.log('TCl: -> submit -> selectNode', selectNode)
-
-          // 1. 可能是一级节点的兄弟节点 -> addMenu -> menu
+          // 1. 可能是一级节点的兄弟节点  -> addMenu -> menu
           if (parent.nodeKey === selectNode.nodeKey) {
             addMenu(data).then((res) => {
               if (res.code === 200) {
@@ -213,14 +206,16 @@ export default {
               }
             })
           }
+          // this.selectNode.length > 0
         }
       } else if (this.type === 'child') {
-        // 字节点
+        // 子节点
         if (typeof this.selectNode[0].children === 'undefined') {
           this.$set(this.selectNode[0], 'children', [data])
         } else {
           let arr = [...this.selectNode[0].children, data]
           arr = sortObj(arr, 'sort')
+          // 排序？
           this.$set(this.selectNode[0], 'children', arr)
         }
         parent = getNode(this.menuData, this.selectNode[0])

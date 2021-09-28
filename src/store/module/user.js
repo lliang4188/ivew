@@ -81,14 +81,16 @@ export default {
           ...loginInfo
         }).then((res) => {
           // console.log('TCl: -> returnnewPromise -> res', res)
-          const data = res.data
-          commit('setToken', res.token)
-          commit('setAvatar', data.pic)
-          commit('setUserName', data.name)
-          commit('setUserId', data._id)
-          commit('setAccess', data.roles)
-          commit('setHasGetInfo', true)
-          resolve(true)
+          if (res.code === 200) {
+            const data = res.data
+            commit('setToken', res.token)
+            commit('setAvatar', data.pic)
+            commit('setUserName', data.name)
+            commit('setUserId', data._id)
+            commit('setAccess', data.roles)
+            commit('setHasGetInfo', true)
+          }
+          resolve(res)
         }).catch(err => {
           reject(err)
         })
@@ -105,9 +107,9 @@ export default {
         //   reject(err)
         // })
         // 如果你的退出登录无需请求接口，则可以直接使用下面三行代码而无需使用logout调用接口
-        // commit('setToken', '')
-        // commit('setAccess', [])
-        // resolve()
+        commit('setToken', '')
+        commit('setAccess', [])
+        resolve()
       })
     },
     // 获取用户相关信息

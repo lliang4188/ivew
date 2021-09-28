@@ -48,6 +48,17 @@ const updateRole = (data) => axios.post('/admin/update-role', data)
 // 删除角色
 const deleteRole = (data) => axios.post('/admin/delete-role', data)
 
+const getStatData = () => axios.get('/admin/getstat')
+
+// 获取评论信息
+const getCommentsAll = (params) => axios.get('/admin/getComments', qs.stringify(params))
+
+// 获取错误信息
+const getErrorList = (params) => axios.get('/admin/get-error?' + qs.stringify(params))
+
+// 删除错误信息
+const deleteErrors = (data) => axios.post('/admin/delete-error', data)
+
 export {
   getUserList,
   updateUserById,
@@ -64,5 +75,9 @@ export {
   getRole,
   updateRole,
   deleteRole,
-  getRoleNames
+  getRoleNames,
+  getCommentsAll,
+  getStatData,
+  getErrorList,
+  deleteErrors
 }
