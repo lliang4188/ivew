@@ -56,5 +56,7 @@ export default {
   resources: 'Resources',
   comments_list: 'Comments List',
   logs_check: 'Logs',
-  system: 'System Management'
+  system: 'System Management',
+  'iview-admin': 'IviewAdmin Document',
+  'api-doc': 'API Document'
 }

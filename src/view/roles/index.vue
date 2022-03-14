@@ -104,9 +104,9 @@
 </template>
 
 <script>
+import { addRole, deleteRole, getMenu, getRole, updateRole } from '@/api/admin'
+import { getPropertyIds, modifyNode } from '@/libs/util'
 import OperationsTable from './operations.vue'
-import { getMenu, getRole, addRole, updateRole, deleteRole } from '@/api/admin'
-import { modifyNode, getPropertyIds } from '@/libs/util'
 export default {
   name: 'roles',
   components: {
@@ -235,10 +235,13 @@ export default {
     selectRole (vale) {
       if (this.roleIndex === '' || this.roleIndex !== vale) {
         this.roleIndex = vale
+        // if (this.roles[this.roleIndex].menu.length === 0) {
+        modifyNode(this.menuData, null, 'checked', false)
+        this.tableData = []
+        // this.roleIndex = ''
+        // return
+        // }
         if (this.roles[this.roleIndex].menu.length === 0) {
-          modifyNode(this.menuData, null, 'checked', false)
-          this.tableData = []
-          // this.roleIndex = ''
           return
         }
         // 修改右侧菜单数 + 权限列表的选中状态

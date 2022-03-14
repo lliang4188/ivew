@@ -1,20 +1,10 @@
+import config from '@/config'
 import {
-  getBreadCrumbList,
-  setTagNavListInLocalstorage,
-  getMenuByRouter,
-  getTagNavListFromLocalstorage,
-  getHomeRoute,
-  getNextRoute,
-  routeHasExist,
-  routeEqual,
-  getRouteTitleHandled,
-  localSave,
-  localRead
+  getBreadCrumbList, getHomeRoute, getMenuByRouter, getNextRoute, getRouteTitleHandled, getTagNavListFromLocalstorage, localRead, localSave, routeEqual, routeHasExist, setTagNavListInLocalstorage
 } from '@/libs/util'
 // import { saveErrorLogger } from '@/api/data'
 import router from '@/router'
 import routers from '@/router/routers'
-import config from '@/config'
 const { homeName } = config
 
 const closePage = (state, route) => {

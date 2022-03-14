@@ -56,5 +56,7 @@ export default {
   resources: '资源选项',
   comments_list: '评论管理',
   logs_check: '错误收集',
-  system: '系统管理'
+  system: '系统管理',
+  'iview-admin': 'IviewAdmin文档',
+  'api-doc': '项目文档'
 }

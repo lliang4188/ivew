@@ -40,28 +40,28 @@ export default [
       }
     ]
   },
-  // {
-  //   path: '/comments',
-  //   name: 'comments_management',
-  //   meta: {
-  //     icon: 'md-umbrella',
-  //     title: '内容安全',
-  //     notCache: true
-  //   },
-  //   component: Main,
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       name: 'comments_list',
-  //       meta: {
-  //         icon: 'ios-chatbubbles',
-  //         title: '评论管理',
-  //         notCache: true
-  //       },
-  //       component: () => import('@/view/comments/index.vue')
-  //     }
-  //   ]
-  // },
+  {
+    path: '/comments',
+    name: 'comments_management',
+    meta: {
+      icon: 'md-umbrella',
+      title: '内容安全',
+      notCache: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'index',
+        name: 'comments_list',
+        meta: {
+          icon: 'ios-chatbubbles',
+          title: '评论管理',
+          notCache: true
+        },
+        component: () => import('@/view/comments/index.vue')
+      }
+    ]
+  },
   {
     path: '/user',
     name: 'user',

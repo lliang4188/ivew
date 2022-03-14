@@ -51,7 +51,16 @@ const deleteRole = (data) => axios.post('/admin/delete-role', data)
 const getStatData = () => axios.get('/admin/getstat')
 
 // 获取评论信息
-const getCommentsAll = (params) => axios.get('/admin/getComments', qs.stringify(params))
+const getCommentsAll = (params) => axios.get('/admin/getComments?' + qs.stringify(params))
+
+// 更新评论信息
+const updateCommentId = (data) => axios.post('/admin//updateCommentsId', data)
+
+// 批量更新评论信息
+const updateComments = (data) => axios.post('/admin/updateComments', data)
+
+// 删除评论信息
+const deleteComents = (data) => axios.post('/admin/deleteComments', data)
 
 // 获取错误信息
 const getErrorList = (params) => axios.get('/admin/get-error?' + qs.stringify(params))
@@ -79,5 +88,8 @@ export {
   getCommentsAll,
   getStatData,
   getErrorList,
-  deleteErrors
+  deleteErrors,
+  deleteComents,
+  updateCommentId,
+  updateComments
 }

@@ -10,7 +10,7 @@
         @on-row-edit="handleRowEdit"
         @on-selection-change="handleSelect"
         @on-row-remove="handleRowRemove"
-         @searchEvent="handleSearch"
+        @searchEvent="handleSearch"
       />
       <Row type="flex" justify="space-between" align="middle">
         <Col class="ctrls">
@@ -30,18 +30,36 @@
         />
       </Row>
     </Card>
+     <BatchSet
+      :isShow="showSet"
+      :users="users"
+      @editEvent="handleItemSet"
+      @changeEvent="handleSetChangeEvent"
+    ></BatchSet>
+    <edit-model
+      :isShow="showEdit"
+      :item="currentItem"
+      :users="users"
+      @editEvent="handleItemEdit"
+      @changeEvent="handleChangeEvent"
+    ></edit-model>
   </div>
 </template>
 
 <script>
-import Tables from '_c/tables'
-import { deletePostById, updatePostById, updatePostBatchById } from '@/api/content'
-import { getCommentsAll } from '@/api/admin'
+import { deleteComents, getCommentsAll, updateCommentId, updateComments } from '@/api/admin'
 import dayjs from 'dayjs'
+import Tables from '_c/tables'
+import BatchSet from './batchSet'
+import EditModel from './edit'
+import Expand from './expand'
+import More from './more'
 export default {
   name: 'comments_management',
   components: {
-    Tables
+    Tables,
+    BatchSet,
+    EditModel
   },
   data () {
     return {
@@ -76,15 +94,15 @@ export default {
         },
         {
           title: '文章标题',
-          key: 'title',
+          key: 'tid',
           ellipsis: true,
           tooltip: true,
           minWidth: 400,
           search: {
             type: 'input'
           },
-          render: (h, parpams) => {
-            const name = params.row.tid ? parpams.row.title : '无标题，请核查！'
+          render: (h, params) => {
+            const name = params.row.tid ? params.row.tid.title : '无标题，请核查！'
             return h('div', name)
           }
         },
@@ -96,8 +114,8 @@ export default {
           search: {
             type: 'input'
           },
-          render: (h, parpams) => {
-            const name = params.row.uid ? parpams.row.uid.name : '无用户昵称，请核查！'
+          render: (h, params) => {
+            const name = params.row.uid ? params.row.uid.name : '无用户昵称，请核查！'
             return h('div', name)
           }
         },
@@ -109,8 +127,8 @@ export default {
           search: {
             type: 'input'
           },
-          render: (h, parpams) => {
-            const name = params.row.cuid ? parpams.row.cuid.name : '无评论用户昵称，请核查！'
+          render: (h, params) => {
+            const name = params.row.cuid ? params.row.cuid.name : '无评论用户昵称，请核查！'
             return h('div', name)
           }
         },
@@ -121,10 +139,10 @@ export default {
           search: {
             type: 'input'
           },
-          render: (h, parpams) => {
+          render: (h, params) => {
             return h(More, {
               props: {
-                row: parpams.row
+                row: params.row
               }
             })
           }
@@ -133,11 +151,11 @@ export default {
           title: '是否显示',
           key: 'status',
           minWidth: 80,
-          render: (h, parpams) => {
+          render: (h, params) => {
             return h('Icon', {
               props: {
                 color: params.row.status === '1' ? '#19be6b' : '#ed4014',
-                type: parpams.row.status === '1' ? 'md-checkmark' : 'md-close'
+                type: params.row.status === '1' ? 'md-checkmark' : 'md-close'
               }
             })
           },
@@ -221,6 +239,21 @@ export default {
       pageArr: [10, 20, 30, 50, 100]
     }
   },
+  computed: {
+    users () {
+      const arr = this.selection.reduce((obj, item) => {
+        return {
+          ...obj,
+          [item.cuid._id]: item.cuid.name
+        }
+      }, {})
+      return arr
+    }
+  },
+  mounted () {
+    this.option = { item: 'status', search: '1' }
+    this._getList()
+  },
   methods: {
     // 批量删除
     handleDeleteBatch () {
@@ -234,7 +267,7 @@ export default {
         content: `确定要删除${msg}吗`,
         onOk: () => {
           const arr = this.selection.map((o) => o._id)
-          deletePostById(arr).then((res) => {
+          deleteComents({ ids: arr }).then((res) => {
             // this.tableData.splice(index, 1)
             this.tableData = this.tableData.filter(
               (item) => !arr.includes(item._id)
@@ -262,26 +295,26 @@ export default {
     },
     handleSearch (value) {
       // 判断是否有新的查询内容的传递，把分页数据归0
-      this.option = {}
-      this.page = 1
-      // if (
-      //   (typeof this.option.search !== 'undefined' &&
-      //     value.search !== this.option.search) ||
-      //   this.option === {}
-      // ) {
-      //   this.page = 1 // 从1开始
-      // }
-      if (value.item === 'tags') {
-        value.item = 'tag'
+      // this.option = {}
+      // this.page = 1
+      if (
+        (typeof this.option.search !== 'undefined' &&
+          value.search !== this.option.search) ||
+        this.option === {}
+      ) {
+        this.page = 1 // 从1开始
       }
-      this.option[value.item] = value.search
+      // if (value.item === 'tags') {
+      //   value.item = 'tag'
+      // }
+      this.option = value
       this._getList()
     },
     handleChangeEvent (value) {
       this.showEdit = value
     },
     handleItemEdit (item) {
-      updatePostById(item).then((res) => {
+      updateCommentId(item).then((res) => {
         if (res.code === 200) {
           this.$Message.success('更新成功')
           this.tableData.splice(this.currentIndex, 1, item)
@@ -297,7 +330,7 @@ export default {
         content: `修改${msg}的文章吗`,
         onOk: () => {
           const arr = this.selection.map((o) => o._id)
-          updatePostBatchById({ ids: arr, settings }).then((res) => {
+          updateComments({ ids: arr, settings }).then((res) => {
             // this.tableData.splice(index, 1)
             this.tableData.map((item) => {
               if (arr.includes(item._id)) {
@@ -325,7 +358,7 @@ export default {
         title: '确定删除文章吗？',
         content: `删除第${index + 1}条数据，文章标题：“${row.title}”的文章吗`,
         onOk: () => {
-          deletePostById(row._id)
+          deleteComents({ ids: row._id })
             .then((res) => {
               if (res.code === 200) {
                 this.tableData = this.tableData.filter(
@@ -360,11 +393,6 @@ export default {
         this.total = res.total
       })
     }
-
-  },
-  mounted () {
-    this.option = { item: 'status', search: '1' }
-    this._getList()
   }
 }
 </script>
